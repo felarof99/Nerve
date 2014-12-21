@@ -1,0 +1,119 @@
+Introduction to Xlib:
+- The server distributes user input to and accepts output requests from various client programs located either on the same machine or elsewhere in the network.
+- Although a client usually runs on the same machine as the X server it is talking to, this need not be the case
+
+Overview of the X Window System
+- The X Window System supports one or more screens containing overlapping windows or subwindows. A screen is a physical monitor and hardware.
+-  A single X server can provide display services for any number of screens. A set of screens for a single user with one keyboard and one pointer (usually a mouse) is called a display.
+- All the windows in an X server are arranged in strict hierarchies. At the top of each hierarchy is a root window, which covers each of the display screens. 
+- Most of the functions in Xlib just add requests to an output buffer. These requests later execute asynchronously on the X server.
+- Client programs are informed of events
+-  A client program asks to be informed of events. Because other applications can send events to your application, programs must be prepared to handle (or ignore) events of all types.
+
+**
+- Input events (for example, a key pressed or the pointer moved) arrive asynchronously from the server and are queued until they are requested by an explicit call (for example, XNextEvent() or XWindowEvent()). 
+
+
+
+XGrabPointer
+
+Syntax
+int XGrabPointer(display, grab_window, owner_events, event_mask, pointer_mode,
+               keyboard_mode, confine_to, cursor, time)
+      Display *display;
+      Window grab_window;
+      Bool owner_events;
+      unsigned int event_mask;	
+      int pointer_mode, keyboard_mode; 
+      Window confine_to; 
+      Cursor cursor; 
+      Time time; 
+
+Arguments
+display	 Specifies the connection to the X server.
+grab_window	 Specifies the grab window.
+owner_events	 Specifies a Boolean value that indicates whether the pointer events are to be reported as usual or reported with respect to the grab window if selected by the event mask.
+event_mask	 Specifies which pointer events are reported to the client. The mask is the bitwise inclusive OR of the valid pointer event mask bits.
+pointer_mode	 Specifies further processing of pointer events. You can pass GrabModeSync or GrabModeAsync.
+keyboard_mode	 Specifies further processing of keyboard events. You can pass GrabModeSync or GrabModeAsync.
+confine_to	 Specifies the window to confine the pointer in or None.
+cursor	 Specifies the cursor that is to be displayed during the grab or None.
+time	 Specifies the time. You can pass either a timestamp or CurrentTime.
+
+Points:
+-  pointer events are reported only to the grabbing client.
+-  XGrabPointer() overrides any active pointer grab by this client.
+- If the pointer_mode is GrabModeSync, the state of the pointer, as seen by client applications, appears to freeze, and the X server generates no further pointer events until the grabbing client calls XAllowEvents().
+- If a confine_to window is specified, the pointer is restricted to stay contained in that window. 
+
+
+
+
+Opening the Display
+
+To open a connection to the X server that controls a display, use XOpenDisplay().
+
+Syntax
+Display *XOpenDisplay(display_name)
+      char *display_name;
+
+Arguments
+display_name	 Specifies the hardware display name, which determines the display and communications domain to be used. On a POSIX-conformant system, if the display_name is NULL, it defaults to the value of the DISPLAY environment variable.
+
+Description:
+- The XOpenDisplay() function returns a Display structure that serves as the connection to the X server and that contains all the information about that X server. XOpenDisplay() connects your application to the X server through TCP or DECnet communications protocols, or through some local inter-process communication protocol.
+- If successful, XOpenDisplay() returns a pointer to a Display structure.  After a successful call to XOpenDisplay() all of the screens in the display can be used by the client. 
+
+
+
+DefaultRootWindow
+
+DefaultRootWindow(display)
+
+Window XDefaultRootWindow(display)
+      Display *display;
+
+display	 Specifies the connection to the X server.
+Both return the root window for the default screen.
+
+
+
+
+XGetInputFocus
+
+Syntax
+
+XGetInputFocus(display, focus_return, revert_to_return)
+      Display *display;
+      Window *focus_return;
+      int *revert_to_return;
+
+Arguments
+
+display	 Specifies the connection to the X server.
+focus_return	 Returns the focus window, PointerRoot, or None.
+revert_to_return	 Returns the current focus state (RevertToParent, RevertToPointerRoot, or RevertToNone).
+Description
+
+The XGetInputFocus() function returns the focus window and the current focus state.
+
+
+
+XSelectInput
+
+Syntax
+XSelectInput(display, w, event_mask)
+      Display *display;
+      Window w;
+      long event_mask;
+
+Arguments
+display	 Specifies the connection to the X server.
+w	 Specifies the window whose events you are interested in.
+event_mask	 Specifies the event mask.
+
+
+Description
+
+The XSelectInput() function requests that the X server report the events associated with the specified event mask.
+
